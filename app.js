@@ -10,12 +10,14 @@ mongoose.connect('mongodb://localhost:27017/yelp_camp', { useNewUrlParser: true 
 const campgroundSchema = new mongoose.Schema({
   name: String,
   image: String,
+  description: String,
 });
 const Campground = mongoose.model('Campground', campgroundSchema);
 
 // Campground.create({
-//   name: 'Mountain Goat\'s Rest',
+//   name: 'Granite Hill',
 //   image: 'https://farm4.staticflickr.com/3273/2602356334_20fbb23543.jpg',
+//   description: 'This is a huge granite hill, no bathrooms, no water. Beautiful granite!',
 // }, (err, campground) => {
 //   if (err) throw err;
 //   console.log('Campground has been added');
@@ -34,13 +36,13 @@ app.get('/', (req, res) => {
 app.get('/campgrounds', (req, res) => {
   Campground.find({}, (err, campgrounds) => {
     if (err) throw err;
-    res.render('campgrounds', { campgrounds });
+    res.render('index', { campgrounds });
   });
 });
 
 app.post('/campgrounds', (req, res) => {
-  const { name, image } = req.body;
-  Campground.create({ name, image }, (err) => {
+  const { name, image, description } = req.body;
+  Campground.create({ name, image, description }, (err) => {
     if (err) throw err;
     res.redirect('/campgrounds');
   });
@@ -48,6 +50,14 @@ app.post('/campgrounds', (req, res) => {
 
 app.get('/campgrounds/new', (req, res) => {
   res.render('new');
+});
+
+app.get('/campgrounds/:id', (req, res) => {
+  const { id } = req.params;
+  Campground.findById(id, (err, campground) => {
+    if (err) throw err;
+    res.render('show', { campground });
+  });
 });
 
 const port = process.env.PORT || 3000;
