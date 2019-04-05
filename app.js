@@ -1,39 +1,49 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+// Connect to DB
+mongoose.connect('mongodb://localhost:27017/yelp_camp', { useNewUrlParser: true });
+
+// Schema setup
+const campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String,
+});
+const Campground = mongoose.model('Campground', campgroundSchema);
+
+// Campground.create({
+//   name: 'Mountain Goat\'s Rest',
+//   image: 'https://farm4.staticflickr.com/3273/2602356334_20fbb23543.jpg',
+// }, (err, campground) => {
+//   if (err) throw err;
+//   console.log('Campground has been added');
+//   console.log(campground);
+// });
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const campgrounds = [
-  {
-    name: 'Salmon Creek',
-    image: 'https://farm1.staticflickr.com/130/321487195_ff34bde2f5.jpg',
-  },
-  {
-    name: 'Granite Hill',
-    image: 'https://farm2.staticflickr.com/1363/1342367857_2fd12531e7.jpg',
-  },
-  {
-    name: 'Mountain Goat\'s Rest',
-    image: 'https://farm4.staticflickr.com/3273/2602356334_20fbb23543.jpg',
-  },
-];
-
 app.get('/', (req, res) => {
   res.render('landing');
 });
 
 app.get('/campgrounds', (req, res) => {
-  res.render('campgrounds', { campgrounds });
+  Campground.find({}, (err, campgrounds) => {
+    if (err) throw err;
+    res.render('campgrounds', { campgrounds });
+  });
 });
 
 app.post('/campgrounds', (req, res) => {
   const { name, image } = req.body;
-  campgrounds.push({ name, image });
-  res.redirect('/campgrounds');
+  Campground.create({ name, image }, (err) => {
+    if (err) throw err;
+    res.redirect('/campgrounds');
+  });
 });
 
 app.get('/campgrounds/new', (req, res) => {
