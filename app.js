@@ -2,27 +2,12 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const Campground = require('./models/campground');
+const seedDB = require('./seeds');
 
 // Connect to DB
 mongoose.connect('mongodb://localhost:27017/yelp_camp', { useNewUrlParser: true });
-
-// Schema setup
-const campgroundSchema = new mongoose.Schema({
-  name: String,
-  image: String,
-  description: String,
-});
-const Campground = mongoose.model('Campground', campgroundSchema);
-
-// Campground.create({
-//   name: 'Granite Hill',
-//   image: 'https://farm4.staticflickr.com/3273/2602356334_20fbb23543.jpg',
-//   description: 'This is a huge granite hill, no bathrooms, no water. Beautiful granite!',
-// }, (err, campground) => {
-//   if (err) throw err;
-//   console.log('Campground has been added');
-//   console.log(campground);
-// });
+seedDB();
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -54,10 +39,14 @@ app.get('/campgrounds/new', (req, res) => {
 
 app.get('/campgrounds/:id', (req, res) => {
   const { id } = req.params;
-  Campground.findById(id, (err, campground) => {
-    if (err) throw err;
-    res.render('show', { campground });
-  });
+  Campground
+    .findById(id)
+    .populate('comments')
+    .exec((err, campground) => {
+      if (err) throw err;
+      console.log('campground show:', campground);
+      res.render('show', { campground });
+    });
 });
 
 const port = process.env.PORT || 3000;
