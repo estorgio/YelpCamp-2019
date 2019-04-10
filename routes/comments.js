@@ -40,6 +40,12 @@ router.post('/', isLoggedIn, (req, res, next) => {
         return;
       }
 
+      /* eslint-disable no-underscore-dangle, no-param-reassign */
+      newComment.author.id = req.user._id;
+      newComment.author.username = req.user.username;
+      newComment.save();
+      /* eslint-enable no-underscore-dangle, no-param-reassign */
+
       campground.comments.push(newComment);
       campground.save((err3) => {
         if (err3) {
