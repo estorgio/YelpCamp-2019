@@ -5,14 +5,6 @@ const User = require('../models/user');
 
 const router = express.Router();
 
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    next();
-    return;
-  }
-  res.redirect('/login');
-}
-
 router.get('/', (req, res) => {
   res.render('landing');
 });

@@ -1,36 +1,8 @@
 const express = require('express');
 const Campground = require('../models/campground');
+const middleware = require('../middleware');
 
 const router = express.Router();
-
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    next();
-    return;
-  }
-  res.redirect('/login');
-}
-
-function checkCampgroundOwnership(req, res, next) {
-  const { id } = req.params;
-  if (!req.isAuthenticated()) {
-    res.redirect('back');
-    return;
-  }
-
-  Campground.findById(id, (err, campground) => {
-    if (err) {
-      next(err);
-      return;
-    }
-    // eslint-disable-next-line no-underscore-dangle
-    if (!campground.author.id.equals(req.user._id)) {
-      res.redirect('back');
-      return;
-    }
-    next();
-  });
-}
 
 router.get('/', (req, res, next) => {
   Campground.find({}, (err, campgrounds) => {
@@ -42,7 +14,7 @@ router.get('/', (req, res, next) => {
   });
 });
 
-router.post('/', isLoggedIn, (req, res, next) => {
+router.post('/', middleware.isLoggedIn, (req, res, next) => {
   const { name, image, description } = req.body;
   const author = {
     // eslint-disable-next-line no-underscore-dangle
@@ -64,7 +36,7 @@ router.post('/', isLoggedIn, (req, res, next) => {
   });
 });
 
-router.get('/new', isLoggedIn, (req, res) => {
+router.get('/new', middleware.isLoggedIn, (req, res) => {
   res.render('campgrounds/new');
 });
 
@@ -82,7 +54,7 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.get('/:id/edit', checkCampgroundOwnership, (req, res, next) => {
+router.get('/:id/edit', middleware.checkCampgroundOwnership, (req, res, next) => {
   const { id } = req.params;
   Campground.findById(id, (err, campground) => {
     if (err) {
@@ -93,7 +65,7 @@ router.get('/:id/edit', checkCampgroundOwnership, (req, res, next) => {
   });
 });
 
-router.put('/:id', checkCampgroundOwnership, (req, res, next) => {
+router.put('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
   const { id } = req.params;
   const { campground } = req.body;
   Campground.findByIdAndUpdate(id, campground, (err) => {
@@ -105,7 +77,7 @@ router.put('/:id', checkCampgroundOwnership, (req, res, next) => {
   });
 });
 
-router.delete('/:id', checkCampgroundOwnership, (req, res, next) => {
+router.delete('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
   const { id } = req.params;
   Campground.findByIdAndDelete(id, (err) => {
     if (err) {
