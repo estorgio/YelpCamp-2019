@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -15,6 +16,7 @@ const indexRoutes = require('./routes/index');
 
 // Connect to DB
 mongoose.connect('mongodb://localhost:27017/yelp_camp', { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 seedDB();
 
 const app = express();
@@ -37,6 +39,7 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 
 app.use('/', indexRoutes);
 app.use('/campgrounds', campgroundRoutes);

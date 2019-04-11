@@ -61,4 +61,27 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
+router.get('/:id/edit', (req, res, next) => {
+  const { id } = req.params;
+  Campground.findById(id, (err, campground) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.render('campgrounds/edit', { campground });
+  });
+});
+
+router.put('/:id', (req, res, next) => {
+  const { id } = req.params;
+  const { campground } = req.body;
+  Campground.findByIdAndUpdate(id, campground, (err) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.redirect(`/campgrounds/${id}`);
+  });
+});
+
 module.exports = router;
