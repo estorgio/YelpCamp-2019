@@ -58,4 +58,27 @@ router.post('/', isLoggedIn, (req, res, next) => {
   });
 });
 
+router.get('/:commentID/edit', (req, res, next) => {
+  const { id, commentID } = req.params;
+  Comment.findById(commentID, (err2, comment) => {
+    if (err2) {
+      next(err2);
+      return;
+    }
+    res.render('comments/edit', { campgroundID: id, comment });
+  });
+});
+
+router.put('/:commentID', (req, res, next) => {
+  const { id, commentID } = req.params;
+  const { comment } = req.body;
+  Comment.findByIdAndUpdate(commentID, comment, (err) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.redirect(`/campgrounds/${id}`);
+  });
+});
+
 module.exports = router;
