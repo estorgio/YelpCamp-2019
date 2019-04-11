@@ -13,6 +13,30 @@ function isLoggedIn(req, res, next) {
   res.redirect('/login');
 }
 
+function checkCommentOwnership(req, res, next) {
+  const { commentID } = req.params;
+
+  if (!req.isAuthenticated()) {
+    res.redirect('back');
+    return;
+  }
+
+  Comment.findById(commentID, (err, comment) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    // eslint-disable-next-line no-underscore-dangle
+    if (!comment.author.id.equals(req.user._id)) {
+      res.redirect('back');
+      return;
+    }
+
+    next();
+  });
+}
+
 router.get('/new', isLoggedIn, (req, res, next) => {
   const { id } = req.params;
 
@@ -58,7 +82,7 @@ router.post('/', isLoggedIn, (req, res, next) => {
   });
 });
 
-router.get('/:commentID/edit', (req, res, next) => {
+router.get('/:commentID/edit', checkCommentOwnership, (req, res, next) => {
   const { id, commentID } = req.params;
   Comment.findById(commentID, (err2, comment) => {
     if (err2) {
@@ -69,7 +93,7 @@ router.get('/:commentID/edit', (req, res, next) => {
   });
 });
 
-router.put('/:commentID', (req, res, next) => {
+router.put('/:commentID', checkCommentOwnership, (req, res, next) => {
   const { id, commentID } = req.params;
   const { comment } = req.body;
   Comment.findByIdAndUpdate(commentID, comment, (err) => {
@@ -81,7 +105,7 @@ router.put('/:commentID', (req, res, next) => {
   });
 });
 
-router.delete('/:commentID', (req, res, next) => {
+router.delete('/:commentID', checkCommentOwnership, (req, res, next) => {
   const { id, commentID } = req.params;
   Comment.findByIdAndDelete(commentID, (err) => {
     if (err) {
