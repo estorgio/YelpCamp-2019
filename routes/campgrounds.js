@@ -11,6 +11,27 @@ function isLoggedIn(req, res, next) {
   res.redirect('/login');
 }
 
+function checkCampgroundOwnership(req, res, next) {
+  const { id } = req.params;
+  if (!req.isAuthenticated()) {
+    res.redirect('back');
+    return;
+  }
+
+  Campground.findById(id, (err, campground) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    // eslint-disable-next-line no-underscore-dangle
+    if (!campground.author.id.equals(req.user._id)) {
+      res.redirect('back');
+      return;
+    }
+    next();
+  });
+}
+
 router.get('/', (req, res, next) => {
   Campground.find({}, (err, campgrounds) => {
     if (err) {
@@ -61,7 +82,7 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.get('/:id/edit', (req, res, next) => {
+router.get('/:id/edit', checkCampgroundOwnership, (req, res, next) => {
   const { id } = req.params;
   Campground.findById(id, (err, campground) => {
     if (err) {
@@ -72,7 +93,7 @@ router.get('/:id/edit', (req, res, next) => {
   });
 });
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', checkCampgroundOwnership, (req, res, next) => {
   const { id } = req.params;
   const { campground } = req.body;
   Campground.findByIdAndUpdate(id, campground, (err) => {
@@ -81,6 +102,17 @@ router.put('/:id', (req, res, next) => {
       return;
     }
     res.redirect(`/campgrounds/${id}`);
+  });
+});
+
+router.delete('/:id', checkCampgroundOwnership, (req, res, next) => {
+  const { id } = req.params;
+  Campground.findByIdAndDelete(id, (err) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.redirect('/campgrounds');
   });
 });
 
