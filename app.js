@@ -20,9 +20,9 @@ const indexRoutes = require('./routes/index');
 const connectionString = process.env.DB_STRING
   ? process.env.DB_STRING
   : 'mongodb://localhost:27017/yelp_camp';
-mongoose.set('useFindAndModify', false);
-mongoose.set('useNewUrlParser', true);
 mongoose
+  .set('useNewUrlParser', true)
+  .set('useFindAndModify', false)
   .connect(connectionString)
   .then(() => console.log('Connected to the database'))
   .catch((err) => {
@@ -54,16 +54,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(flash());
 app.use((req, res, next) => {
-  // res.locals.flash = {
-  //   error: req.flash('error'),
-  //   success: req.flash('success'),
-  // };
   res.locals.flashSuccess = req.flash('success');
   res.locals.flashError = req.flash('error');
-
-  // console.log('success:', res.locals.flashSuccess);
-  // console.log('error:', res.locals.flashError);
-
   next();
 });
 
