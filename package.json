@@ -4,6 +4,7 @@
   "description": "YelpCamp",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon"
   },
   "author": "Fortunato Estorgio",

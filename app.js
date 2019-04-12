@@ -15,9 +15,20 @@ const commentRoutes = require('./routes/comments');
 const campgroundRoutes = require('./routes/campgrounds');
 const indexRoutes = require('./routes/index');
 
+
 // Connect to DB
-mongoose.connect('mongodb://localhost:27017/yelp_camp', { useNewUrlParser: true });
+const connectionString = process.env.DB_STRING
+  ? process.env.DB_STRING
+  : 'mongodb://localhost:27017/yelp_camp';
 mongoose.set('useFindAndModify', false);
+mongoose.set('useNewUrlParser', true);
+mongoose
+  .connect(connectionString)
+  .then(() => console.log('Connected to the database'))
+  .catch((err) => {
+    console.log('Error occured while connecting to the database!');
+    console.log(`${err.name}: ${err.message}`);
+  });
 seedDB();
 
 const app = express();

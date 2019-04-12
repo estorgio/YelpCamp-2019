@@ -60,8 +60,8 @@ function clearDB() {
 }
 
 async function seedDB() {
-  await clearDB();
-  addNewCampgrounds();
+  // await clearDB();
+  // addNewCampgrounds();
 }
 
 module.exports = seedDB;
