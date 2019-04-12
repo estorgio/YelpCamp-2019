@@ -49,8 +49,7 @@ router.get('/:id', (req, res, next) => {
         next(err);
         return;
       }
-      const dateCreated = moment(campground.created).fromNow();
-      res.render('campgrounds/show', { campground, dateCreated });
+      res.render('campgrounds/show', { campground, moment });
     });
 });
 
