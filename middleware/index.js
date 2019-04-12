@@ -15,7 +15,8 @@ middleware.isLoggedIn = (req, res, next) => {
 middleware.checkCampgroundOwnership = (req, res, next) => {
   const { id } = req.params;
   if (!req.isAuthenticated()) {
-    res.redirect('back');
+    req.flash('error', 'You must be signed in to perform this action.');
+    res.redirect('/login');
     return;
   }
 
@@ -26,6 +27,7 @@ middleware.checkCampgroundOwnership = (req, res, next) => {
     }
     // eslint-disable-next-line no-underscore-dangle
     if (!campground.author.id.equals(req.user._id)) {
+      req.flash('error', 'Permission denied. Action cannot be taken.');
       res.redirect('back');
       return;
     }
@@ -37,7 +39,8 @@ middleware.checkCommentOwnership = (req, res, next) => {
   const { commentID } = req.params;
 
   if (!req.isAuthenticated()) {
-    res.redirect('back');
+    req.flash('error', 'You must be signed in to perform this action.');
+    res.redirect('/login');
     return;
   }
 
@@ -49,6 +52,7 @@ middleware.checkCommentOwnership = (req, res, next) => {
 
     // eslint-disable-next-line no-underscore-dangle
     if (!comment.author.id.equals(req.user._id)) {
+      req.flash('error', 'Permission denied. Action cannot be taken.');
       res.redirect('back');
       return;
     }
