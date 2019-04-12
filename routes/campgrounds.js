@@ -15,16 +15,14 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', middleware.isLoggedIn, (req, res, next) => {
-  const { name, image, description } = req.body;
+  const { campground } = req.body;
   const author = {
     // eslint-disable-next-line no-underscore-dangle
     id: req.user._id,
     username: req.user.username,
   };
   const newCampground = {
-    name,
-    image,
-    description,
+    ...campground,
     author,
   };
   Campground.create(newCampground, (err) => {
