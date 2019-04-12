@@ -28,12 +28,15 @@ router.post('/register', (req, res, next) => {
 router.get('/login', (req, res) => res.render('login'));
 
 router.post('/login', passport.authenticate('local', {
+  successFlash: 'You have successfully signed in',
   successRedirect: '/campgrounds',
+  failureFlash: 'Invalid username or password.',
   failureRedirect: '/login',
 }));
 
 router.get('/logout', (req, res) => {
   req.logout();
+  req.flash('success', 'You have successfully signed out.');
   res.redirect('/login');
 });
 

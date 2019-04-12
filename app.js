@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const expressSession = require('express-session');
+const flash = require('connect-flash');
 
 const User = require('./models/user');
 const seedDB = require('./seeds');
@@ -40,6 +41,20 @@ app.set('view engine', 'ejs');
 app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.use(flash());
+app.use((req, res, next) => {
+  // res.locals.flash = {
+  //   error: req.flash('error'),
+  //   success: req.flash('success'),
+  // };
+  res.locals.flashSuccess = req.flash('success');
+  res.locals.flashError = req.flash('error');
+
+  // console.log('success:', res.locals.flashSuccess);
+  // console.log('error:', res.locals.flashError);
+
+  next();
+});
 
 app.use('/', indexRoutes);
 app.use('/campgrounds', campgroundRoutes);

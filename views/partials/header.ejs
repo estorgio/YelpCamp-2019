@@ -29,3 +29,22 @@
       </div>
     </div>
   </nav>
+
+  <div class="container">
+    <% flashSuccess.forEach((message) => { %>
+    <div class="alert alert-success alert-dismissable fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <%= message %>
+    </div>
+    <% }); %>
+    <% flashError.forEach((message) => { %>
+    <div class="alert alert-danger alert-dismissable fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <%= message %>
+    </div>
+    <% }); %>
+  </div>
