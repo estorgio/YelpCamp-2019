@@ -1,4 +1,5 @@
 const express = require('express');
+const moment = require('moment');
 const Campground = require('../models/campground');
 const middleware = require('../middleware');
 
@@ -48,7 +49,8 @@ router.get('/:id', (req, res, next) => {
         next(err);
         return;
       }
-      res.render('campgrounds/show', { campground });
+      const dateCreated = moment(campground.created).fromNow();
+      res.render('campgrounds/show', { campground, dateCreated });
     });
 });
 

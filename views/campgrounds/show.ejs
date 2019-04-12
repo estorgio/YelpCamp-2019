@@ -17,7 +17,8 @@
           <h4 class="pull-right">$<%= campground.price %>/night</h4>
           <h4><a href="#"><%= campground.name %></a></h4>
           <p><%= campground.description %></p>
-          <p><em>Submitted by <%= campground.author.username %></em></p>
+          <p><em>Submitted by <%= campground.author.username %>, <span
+                title="<%= campground.created %> "><%= dateCreated %></span></em></p>
           <% if (currentUser && campground.author.id.equals(currentUser._id)) { %>
           <a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-xs btn-warning">Edit</a>
           <form class="form-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
