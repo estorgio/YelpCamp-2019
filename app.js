@@ -2,42 +2,29 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
-const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-const expressSession = require('express-session');
 const flash = require('connect-flash');
 
+const dbConnect = require('./utils/db');
+const session = require('./utils/session');
+
 const User = require('./models/user');
-const seedDB = require('./seeds');
 
 const commentRoutes = require('./routes/comments');
 const campgroundRoutes = require('./routes/campgrounds');
 const indexRoutes = require('./routes/index');
 
+// Load env file
+require('dotenv').config();
 
 // Connect to DB
-const connectionString = process.env.DB_STRING
-  ? process.env.DB_STRING
-  : 'mongodb://localhost:27017/yelp_camp';
-mongoose
-  .set('useNewUrlParser', true)
-  .set('useFindAndModify', false)
-  .connect(connectionString)
-  .then(() => console.log('Connected to the database'))
-  .catch((err) => {
-    console.log('Error occured while connecting to the database!');
-    console.log(`${err.name}: ${err.message}`);
-  });
-seedDB();
+dbConnect();
 
 const app = express();
 
-app.use(expressSession({
-  secret: 'jagehaiohnh',
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(session);
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
