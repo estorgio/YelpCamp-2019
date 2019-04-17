@@ -5,6 +5,7 @@
     <h1 class="text-center">Login</h1>
     <div style="width: 30%; margin: 25px auto;">
       <form action="/login" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-group">
           <input type="text" class="form-control" name="username" placeholder="Username">
         </div>

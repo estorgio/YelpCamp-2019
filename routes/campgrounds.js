@@ -1,5 +1,6 @@
 const express = require('express');
 const moment = require('moment');
+const csurf = require('csurf')();
 const Campground = require('../models/campground');
 const middleware = require('../middleware');
 
@@ -15,7 +16,7 @@ router.get('/', (req, res, next) => {
   });
 });
 
-router.post('/', middleware.isLoggedIn, (req, res, next) => {
+router.post('/', middleware.isLoggedIn, csurf, (req, res, next) => {
   const { campground } = req.body;
   const author = {
     // eslint-disable-next-line no-underscore-dangle
@@ -35,11 +36,13 @@ router.post('/', middleware.isLoggedIn, (req, res, next) => {
   });
 });
 
-router.get('/new', middleware.isLoggedIn, (req, res) => {
-  res.render('campgrounds/new');
+router.get('/new', middleware.isLoggedIn, csurf, (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.render('campgrounds/new', { csrfToken });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', csurf, (req, res, next) => {
+  const csrfToken = req.csrfToken();
   const { id } = req.params;
   Campground
     .findById(id)
@@ -49,22 +52,23 @@ router.get('/:id', (req, res, next) => {
         next(err);
         return;
       }
-      res.render('campgrounds/show', { campground, moment });
+      res.render('campgrounds/show', { csrfToken, campground, moment });
     });
 });
 
-router.get('/:id/edit', middleware.checkCampgroundOwnership, (req, res, next) => {
+router.get('/:id/edit', middleware.checkCampgroundOwnership, csurf, (req, res, next) => {
+  const csrfToken = req.csrfToken();
   const { id } = req.params;
   Campground.findById(id, (err, campground) => {
     if (err) {
       next(err);
       return;
     }
-    res.render('campgrounds/edit', { campground });
+    res.render('campgrounds/edit', { csrfToken, campground });
   });
 });
 
-router.put('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
+router.put('/:id', middleware.checkCampgroundOwnership, csurf, (req, res, next) => {
   const { id } = req.params;
   const { campground } = req.body;
   Campground.findByIdAndUpdate(id, campground, (err) => {
@@ -76,7 +80,7 @@ router.put('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
   });
 });
 
-router.delete('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
+router.delete('/:id', middleware.checkCampgroundOwnership, csurf, (req, res, next) => {
   const { id } = req.params;
   Campground.findByIdAndDelete(id, (err) => {
     if (err) {
@@ -86,5 +90,12 @@ router.delete('/:id', middleware.checkCampgroundOwnership, (req, res, next) => {
     res.redirect('/campgrounds');
   });
 });
+
+// eslint-disable-next-line no-unused-vars
+router.use((err, req, res, next) => {
+  req.flash('error', err.message);
+  res.redirect('back');
+});
+
 
 module.exports = router;

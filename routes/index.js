@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const csurf = require('csurf')();
 
 const User = require('../models/user');
 
@@ -10,9 +11,12 @@ router.get('/', (req, res) => {
 });
 
 // AUTH ROUTES
-router.get('/register', (req, res) => res.render('register'));
+router.get('/register', csurf, (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.render('register', { csrfToken });
+});
 
-router.post('/register', (req, res, next) => {
+router.post('/register', csurf, (req, res, next) => {
   const { username, password } = req.body;
   User.register(new User({ username }), password, (err) => {
     if (err) {
@@ -29,9 +33,12 @@ router.post('/register', (req, res, next) => {
   });
 });
 
-router.get('/login', (req, res) => res.render('login'));
+router.get('/login', csurf, (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.render('login', { csrfToken });
+});
 
-router.post('/login', passport.authenticate('local', {
+router.post('/login', csurf, passport.authenticate('local', {
   successFlash: 'You have successfully signed in',
   successRedirect: '/campgrounds',
   failureFlash: 'Invalid username or password.',
@@ -42,6 +49,12 @@ router.get('/logout', (req, res) => {
   req.logout();
   req.flash('success', 'You have successfully signed out.');
   res.redirect('/login');
+});
+
+// eslint-disable-next-line no-unused-vars
+router.use((err, req, res, next) => {
+  req.flash('error', err.message);
+  res.redirect('back');
 });
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const express = require('express');
+const csurf = require('csurf')();
 
 const Campground = require('../models/campground');
 const Comment = require('../models/comment');
@@ -6,7 +7,8 @@ const middleware = require('../middleware');
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/new', middleware.isLoggedIn, (req, res, next) => {
+router.get('/new', middleware.isLoggedIn, csurf, (req, res, next) => {
+  const csrfToken = req.csrfToken();
   const { id } = req.params;
 
   Campground.findById(id, (err, campground) => {
@@ -14,11 +16,11 @@ router.get('/new', middleware.isLoggedIn, (req, res, next) => {
       next(err);
       return;
     }
-    res.render('comments/new', { campground });
+    res.render('comments/new', { csrfToken, campground });
   });
 });
 
-router.post('/', middleware.isLoggedIn, (req, res, next) => {
+router.post('/', middleware.isLoggedIn, csurf, (req, res, next) => {
   const { id } = req.params;
   const { comment } = req.body;
   Campground.findById(id, (err, campground) => {
@@ -51,18 +53,19 @@ router.post('/', middleware.isLoggedIn, (req, res, next) => {
   });
 });
 
-router.get('/:commentID/edit', middleware.checkCommentOwnership, (req, res, next) => {
+router.get('/:commentID/edit', middleware.checkCommentOwnership, csurf, (req, res, next) => {
+  const csrfToken = req.csrfToken();
   const { id, commentID } = req.params;
   Comment.findById(commentID, (err2, comment) => {
     if (err2) {
       next(err2);
       return;
     }
-    res.render('comments/edit', { campgroundID: id, comment });
+    res.render('comments/edit', { csrfToken, campgroundID: id, comment });
   });
 });
 
-router.put('/:commentID', middleware.checkCommentOwnership, (req, res, next) => {
+router.put('/:commentID', middleware.checkCommentOwnership, csurf, (req, res, next) => {
   const { id, commentID } = req.params;
   const { comment } = req.body;
   Comment.findByIdAndUpdate(commentID, comment, (err) => {
@@ -74,7 +77,7 @@ router.put('/:commentID', middleware.checkCommentOwnership, (req, res, next) => 
   });
 });
 
-router.delete('/:commentID', middleware.checkCommentOwnership, (req, res, next) => {
+router.delete('/:commentID', middleware.checkCommentOwnership, csurf, (req, res, next) => {
   const { id, commentID } = req.params;
   Comment.findByIdAndDelete(commentID, (err) => {
     if (err) {
@@ -84,6 +87,12 @@ router.delete('/:commentID', middleware.checkCommentOwnership, (req, res, next) 
     req.flash('success', 'Comment successfully deleted.');
     res.redirect(`/campgrounds/${id}`);
   });
+});
+
+// eslint-disable-next-line no-unused-vars
+router.use((err, req, res, next) => {
+  req.flash('error', err.message);
+  res.redirect('back');
 });
 
 module.exports = router;
