@@ -3,6 +3,7 @@ const passport = require('passport');
 const csurf = require('csurf')();
 
 const User = require('../models/user');
+const recaptcha = require('../utils/recaptcha');
 
 const router = express.Router();
 
@@ -13,25 +14,30 @@ router.get('/', (req, res) => {
 // AUTH ROUTES
 router.get('/register', csurf, (req, res) => {
   const csrfToken = req.csrfToken();
-  res.render('register', { csrfToken });
+  const recaptchaSiteKey = recaptcha.getSiteKey();
+
+  res.render('register', { recaptchaSiteKey, csrfToken });
 });
 
-router.post('/register', csurf, (req, res, next) => {
-  const { username, password } = req.body;
-  User.register(new User({ username }), password, (err) => {
-    if (err) {
-      req.flash('error', err.message);
-      res.redirect('/register');
-      // next(err);
-      return;
-    }
+router.post('/register',
+  csurf,
+  recaptcha.validate(),
+  (req, res, next) => {
+    const { username, password } = req.body;
+    User.register(new User({ username }), password, (err) => {
+      if (err) {
+        req.flash('error', err.message);
+        res.redirect('/register');
+        // next(err);
+        return;
+      }
 
-    passport.authenticate('local')(req, res, () => {
-      req.flash('success', `Welcome to YelpCamp, ${req.user.username}!`);
-      res.redirect('/campgrounds');
+      passport.authenticate('local')(req, res, () => {
+        req.flash('success', `Welcome to YelpCamp, ${req.user.username}!`);
+        res.redirect('/campgrounds');
+      });
     });
   });
-});
 
 router.get('/login', csurf, (req, res) => {
   const csrfToken = req.csrfToken();
