@@ -2,17 +2,18 @@ const axios = require('axios');
 
 require('dotenv').config();
 
+const siteKey = process.env.RECAPTCHA_SITE_KEY;
+const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+
 function getSiteKey() {
-  return process.env.RECAPTCHA_SITE_KEY;
+  return siteKey;
 }
 
 function getSecretKey() {
-  return process.env.RECAPTCHA_SECRET_KEY;
+  return secretKey;
 }
 
 async function verifyToken(token) {
-  const secretKey = getSecretKey();
-
   let recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify?';
   recaptchaUrl += `secret=${secretKey}&`;
   recaptchaUrl += `response=${token}`;
