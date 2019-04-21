@@ -11,7 +11,9 @@ const sessionInstance = session({
   saveUninitialized: false,
   store: new RedisStore({
     prefix: process.env.SESSION_PREFIX,
-    url: process.env.REDISCLOUD_URL || process.env.SESSION_REDIS_URL,
+    url: process.env.REDISCLOUD_URL
+      || process.env.REDIS_URL
+      || process.env.SESSION_REDIS_URL,
   }),
 });
 
