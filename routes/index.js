@@ -13,10 +13,12 @@ router.get('/', (req, res) => {
 
 // AUTH ROUTES
 router.get('/register', csurf, (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/campgrounds');
+
   const csrfToken = req.csrfToken();
   const recaptchaSiteKey = recaptcha.getSiteKey();
 
-  res.render('register', { recaptchaSiteKey, csrfToken });
+  return res.render('register', { recaptchaSiteKey, csrfToken });
 });
 
 router.post('/register',
@@ -40,8 +42,10 @@ router.post('/register',
   });
 
 router.get('/login', csurf, (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/campgrounds');
+
   const csrfToken = req.csrfToken();
-  res.render('login', { csrfToken });
+  return res.render('login', { csrfToken });
 });
 
 router.post('/login', csurf, passport.authenticate('local', {
