@@ -1,3 +1,7 @@
+// Load env file
+require('dotenv').config();
+
+// Load dependencies
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -14,9 +18,6 @@ const User = require('./models/user');
 const commentRoutes = require('./routes/comments');
 const campgroundRoutes = require('./routes/campgrounds');
 const indexRoutes = require('./routes/index');
-
-// Load env file
-require('dotenv').config();
 
 // Connect to DB
 dbConnect();

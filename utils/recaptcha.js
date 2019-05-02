@@ -1,7 +1,5 @@
 const axios = require('axios');
 
-require('dotenv').config();
-
 const siteKey = process.env.RECAPTCHA_SITE_KEY;
 const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
